@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en" data-theme="1">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Kala Vriksha Academy | Announcing Soon | Vancouver (YVR)</title>
+    <meta
+      name="description"
+      content="Kala Vriksha Academy, based out of Vancouver (YVR) and inspiring worldwide. Grand unveiling on October 20, 2026. Stay tuned for more details."
+    />
+    <meta name="theme-color" content="#EDE3CB" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Serif+Display&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&family=Marcellus&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <canvas id="notes" aria-hidden="true"></canvas>
+    <svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <symbol id="i-pin" viewBox="0 0 24 24">
+          <path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z" />
+          <circle cx="12" cy="9.5" r="2.5" />
+        </symbol>
+        <symbol id="i-bell" viewBox="0 0 24 24">
+          <path d="M6 16v-5a6 6 0 1 1 12 0v5l1.5 2h-15L6 16z" />
+          <path d="M10 20.5a2 2 0 0 0 4 0" />
+        </symbol>
+        <symbol id="i-megaphone" viewBox="0 0 24 24">
+          <path d="M3 10v4h3l7 4V6L6 10H3z" />
+          <path d="M16.5 9a4 4 0 0 1 0 6" />
+          <path d="M18.5 6.5a7.5 7.5 0 0 1 0 11" />
+        </symbol>
+        <symbol id="i-mail" viewBox="0 0 24 24">
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path d="M3.5 7l8.5 6 8.5-6" />
+        </symbol>
+        <symbol id="i-send" viewBox="0 0 24 24">
+          <path d="M21 3L10 14" />
+          <path d="M21 3l-7 18-4-7-7-4 18-7z" />
+        </symbol>
+        <symbol id="i-home" viewBox="0 0 24 24">
+          <path d="M4 11l8-7 8 7" />
+          <path d="M6 10v10h12V10" />
+          <path d="M10 20v-5h4v5" />
+        </symbol>
+        <symbol id="i-share" viewBox="0 0 24 24">
+          <circle cx="6" cy="12" r="2.5" />
+          <circle cx="18" cy="6" r="2.5" />
+          <circle cx="18" cy="18" r="2.5" />
+          <path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6" />
+        </symbol>
+        <symbol id="i-note" viewBox="0 0 24 24">
+          <path d="M9 18V6l10-2v12" />
+          <circle cx="6.5" cy="18" r="2.5" />
+          <circle cx="16.5" cy="16" r="2.5" />
+        </symbol>
+        <symbol id="i-instagram" viewBox="0 0 24 24">
+          <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="17" cy="7" r=".6" fill="currentColor" />
+        </symbol>
+        <symbol id="i-facebook" viewBox="0 0 24 24">
+          <path
+            fill="currentColor"
+            stroke="none"
+            d="M14 8h2.2V4.8H13.5A3.9 3.9 0 0 0 9.6 8.7V11H7.5v3.2h2.1V21H13v-6.8h2.3l.5-3.2H13V9c0-.6.4-1 1-1z"
+          />
+        </symbol>
+        <symbol id="i-youtube" viewBox="0 0 24 24">
+          <rect x="2.5" y="5.5" width="19" height="13" rx="4" />
+          <path fill="currentColor" d="M10 9.2v5.6l4.8-2.8z" />
+        </symbol>
+        <symbol id="i-whatsapp" viewBox="0 0 24 24">
+          <path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3.5 20l1.2-3.8A8.5 8.5 0 1 1 20 11.5z" />
+          <path
+            fill="currentColor"
+            stroke="none"
+            d="M9.2 8c.2 2.6 3 5.4 5.6 5.7l1.2-1.3-1.9-1-.8.8c-.9-.4-1.7-1.2-2.1-2.1l.8-.8-1-1.9z"
+          />
+        </symbol>
+      </defs>
+    </svg>
+    <!-- TEMPORARY THEME BAR: remove this element (plus its CSS and JS selectors) when a theme is chosen -->
+    <div class="themebar" role="group" aria-label="Theme selector">
+      <div class="wrap">
+        <span>Select Theme:</span>
+        <div class="btns">
+          <button type="button" data-t="1" aria-label="Theme 1" aria-pressed="true">Theme 1</button>
+          <button type="button" data-t="2" aria-label="Theme 2" aria-pressed="false">Theme 2</button>
+          <button type="button" data-t="3" aria-label="Theme 3" aria-pressed="false">Theme 3</button>
+          <button type="button" data-t="4" aria-label="Theme 4" aria-pressed="false">Theme 4</button>
+          <button type="button" data-t="5" aria-label="Theme 5" aria-pressed="false">Theme 5</button>
+        </div>
+      </div>
+    </div>
+
+    <header id="hdr">
+      <div class="wrap bar">
+        <a class="logo" href="#top" aria-label="Kala Vriksha Academy, home"
+          ><img src="LogoKV.jpeg" width="640" height="640" alt="Kala Vriksha Academy"
+        /></a>
+        <nav aria-label="Primary">
+          <a class="link" href="#announcements"
+            ><svg class="ic"><use href="#i-megaphone" /></svg>Announcements</a
+          >
+          <a class="cta" href="#stay-tuned"
+            ><svg class="ic"><use href="#i-bell" /></svg>Stay Tuned</a
+          >
+        </nav>
+      </div>
+      <div class="weave" aria-hidden="true"></div>
+    </header>
+
+    <main id="top">
+      <section class="hero" id="announcements">
+        <div class="wrap">
+          <div class="frame">
+            <div class="hero-text">
+              <h1 id="h1">A New Era Of Musical Heritage Is Arriving</h1>
+              <p class="sub">
+                <svg class="ic"><use href="#i-pin" /></svg> Based out of Vancouver (YVR) — Inspiring Worldwide
+              </p>
+              <p class="announce">
+                <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span
+                ><span>Grand Unveiling On October 20, 2026 — Stay Tuned For More Details!</span>
+              </p>
+              <div class="count" id="count" role="timer" aria-label="Time until the announcement">
+                <div class="cbox"><b id="d">--</b><span>Days</span></div>
+                <div class="cbox"><b id="h">--</b><span>Hours</span></div>
+                <div class="cbox"><b id="m">--</b><span>Mins</span></div>
+                <div class="cbox"><b id="s">--</b><span>Secs</span></div>
+              </div>
+              <p class="count-done" id="done" hidden>
+                We are live! Follow our social channels for the announcement.
+              </p>
+            </div>
+            <div class="hero-logo" id="heroLogo">
+              <span class="logo"
+                ><img
+                  src="LogoKV.jpeg"
+                  width="640"
+                  height="640"
+                  alt="Kala Vriksha Academy logo"
+                  fetchpriority="high"
+              /></span>
+              <p class="tag">Where music takes root.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="notify" id="stay-tuned">
+        <div class="wrap">
+          <div class="box rv">
+            <span class="eyebrow"
+              ><svg class="ic"><use href="#i-bell" /></svg>Announcing Soon</span
+            >
+            <h2>Stay Tuned For More Details</h2>
+            <p class="d">Join our community of music enthusiasts to receive exclusive launch updates.</p>
+            <form id="f" novalidate>
+              <label class="sr" for="em">Email address</label>
+              <div class="field">
+                <svg class="ic"><use href="#i-mail" /></svg
+                ><input
+                  id="em"
+                  type="email"
+                  inputmode="email"
+                  autocomplete="email"
+                  placeholder="Enter your email address..."
+                  required
+                />
+              </div>
+              <button class="go" type="submit">
+                <svg class="ic"><use href="#i-send" /></svg>Notify Me
+              </button>
+            </form>
+            <p class="status" id="st" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="social" id="connect">
+        <div class="wrap rv">
+          <span class="eyebrow"
+            ><svg class="ic"><use href="#i-share" /></svg>Connect With Us</span
+          >
+          <ul>
+            <li>
+              <a data-k="instagram" href="#"
+                ><svg class="ic"><use href="#i-instagram" /></svg>Instagram</a
+              >
+            </li>
+            <li>
+              <a data-k="facebook" href="#"
+                ><svg class="ic"><use href="#i-facebook" /></svg>Facebook</a
+              >
+            </li>
+            <li>
+              <a data-k="youtube" href="#"
+                ><svg class="ic"><use href="#i-youtube" /></svg>YouTube</a
+              >
+            </li>
+            <li>
+              <a data-k="whatsapp" href="#"
+                ><svg class="ic"><use href="#i-whatsapp" /></svg>WhatsApp</a
+              >
+            </li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <div class="weave" aria-hidden="true"></div>
+    <footer>
+      <div class="wrap">
+        <div class="fgrid">
+          <div>
+            <a class="logo" href="#top" aria-label="Back to top"
+              ><img src="LogoKV.jpeg" width="640" height="640" alt="Kala Vriksha Academy" loading="lazy"
+            /></a>
+            <p>Kala Vriksha Academy — Nurturing artistic heritage and classical expression worldwide.</p>
+          </div>
+          <div>
+            <h4>Navigation</h4>
+            <ul>
+              <li>
+                <a href="#top"
+                  ><svg class="ic"><use href="#i-home" /></svg>Home</a
+                >
+              </li>
+              <li>
+                <a href="#announcements"
+                  ><svg class="ic"><use href="#i-megaphone" /></svg>Announcements</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4>Connect</h4>
+            <ul>
+              <li>
+                <a href="#connect"
+                  ><svg class="ic"><use href="#i-share" /></svg>Social Channels</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="legal">
+          <span>&copy; 2026 Kala Vriksha Academy. All rights reserved.</span
+          ><span
+            ><svg class="ic"><use href="#i-pin" /></svg>Vancouver, BC, Canada (YVR)</span
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
