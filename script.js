@@ -628,7 +628,7 @@ function initForm() {
     } catch (error) {
       console.error(error);
       formNote.textContent =
-        'Something went wrong and your inquiry was not sent. Please try again or call (604) 803-9009.';
+        'Something went wrong and your inquiry was not sent. Please try again or call +1 (778) 836-0497.';
       formNote.setAttribute('role', 'alert');
     } finally {
       setBusy(false);
