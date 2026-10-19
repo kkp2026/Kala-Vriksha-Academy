@@ -32,11 +32,26 @@ function initHeader() {
   const header = document.getElementById('siteHeader');
   const navToggle = document.getElementById('navToggle');
   const primaryNav = document.getElementById('primaryNav');
+  let ticking = false;
 
-  window.addEventListener('scroll', () => {
+  const update = () => {
     header.classList.toggle('is-scrolled', window.scrollY > 24);
-  }, { passive: true });
+    ticking = false;
+  };
 
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    },
+    { passive: true },
+  );
+  update();
+
+  // Mobile navigation drawer toggle
   if (navToggle && primaryNav) {
     navToggle.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -46,7 +61,6 @@ function initHeader() {
       navToggle.querySelector('.ic-close').hidden = !isOpen;
     });
 
-    // Close menu when clicking links
     primaryNav.querySelectorAll('.nav-link').forEach((link) => {
       link.addEventListener('click', () => {
         primaryNav.classList.remove('is-open');
@@ -55,24 +69,15 @@ function initHeader() {
         navToggle.querySelector('.ic-close').hidden = true;
       });
     });
-  }
-}
-  // Mobile navigation drawer toggle
-  if (navToggle && primaryNav) {
-    navToggle.addEventListener('click', () => {
-      const isOpen = primaryNav.classList.toggle('is-open');
-      navToggle.setAttribute('aria-expanded', String(isOpen));
-      navToggle.querySelector('.ic-menu').hidden = isOpen;
-      navToggle.querySelector('.ic-close').hidden = !isOpen;
-    });
 
-    primaryNav.querySelectorAll('.nav-link, .btn').forEach((link) => {
-      link.addEventListener('click', () => {
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!primaryNav.contains(e.target) && !navToggle.contains(e.target)) {
         primaryNav.classList.remove('is-open');
         navToggle.setAttribute('aria-expanded', 'false');
         navToggle.querySelector('.ic-menu').hidden = false;
         navToggle.querySelector('.ic-close').hidden = true;
-      });
+      }
     });
   }
 }
