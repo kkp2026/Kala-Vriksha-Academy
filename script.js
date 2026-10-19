@@ -25,7 +25,7 @@ const CONFIG = {
     instagram: 'https://instagram.com/kalavriksha',
     facebook: 'https://facebook.com/kalavriksha',
     youtube: 'https://youtube.com/@kalavriksha',
-    whatsapp: 'https://wa.me/16048039009',
+    whatsapp: 'https://wa.me/+17788360497',
   },
 };
 
