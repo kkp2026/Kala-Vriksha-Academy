@@ -6,6 +6,10 @@
    ========================================================================== */
 
 const CONFIG = {
+  // Background music (KVA.mp3): level from 0 to 1 and how long the gentle fade-in takes.
+  musicVolume: 0.5,
+  musicFadeInMs: 4000,
+
   // Contact form: leave empty while there is no backend. When it is set, the form POSTs JSON to this URL.
   endpoint: '',
 
@@ -57,16 +61,16 @@ function initHeader() {
       e.stopPropagation();
       const isOpen = primaryNav.classList.toggle('is-open');
       navToggle.setAttribute('aria-expanded', String(isOpen));
-      navToggle.querySelector('.ic-menu').hidden = isOpen;
-      navToggle.querySelector('.ic-close').hidden = !isOpen;
+      navToggle.querySelector('.ic-menu').toggleAttribute('hidden', isOpen);
+      navToggle.querySelector('.ic-close').toggleAttribute('hidden', !isOpen);
     });
 
     primaryNav.querySelectorAll('.nav-link').forEach((link) => {
       link.addEventListener('click', () => {
         primaryNav.classList.remove('is-open');
         navToggle.setAttribute('aria-expanded', 'false');
-        navToggle.querySelector('.ic-menu').hidden = false;
-        navToggle.querySelector('.ic-close').hidden = true;
+        navToggle.querySelector('.ic-menu').toggleAttribute('hidden', false);
+        navToggle.querySelector('.ic-close').toggleAttribute('hidden', true);
       });
     });
 
@@ -75,8 +79,8 @@ function initHeader() {
       if (!primaryNav.contains(e.target) && !navToggle.contains(e.target)) {
         primaryNav.classList.remove('is-open');
         navToggle.setAttribute('aria-expanded', 'false');
-        navToggle.querySelector('.ic-menu').hidden = false;
-        navToggle.querySelector('.ic-close').hidden = true;
+        navToggle.querySelector('.ic-menu').toggleAttribute('hidden', false);
+        navToggle.querySelector('.ic-close').toggleAttribute('hidden', true);
       }
     });
   }
@@ -299,8 +303,73 @@ function initCategories() {
     return /^[\w-]{11}$/.test(value) ? value : '';
   }
 
-  function mountPlayer(card) {
+  // The YouTube IFrame API lets us loop the sample and fade it in gently
+  const SAMPLE_VOLUME = 45; // mild level, out of 100
+  const FADE_IN_MS = 4000;
+  let apiPromise;
+  let ytPlayer = null;
+  let fadeTimer = 0;
+  let mountToken = 0;
+
+  function loadYouTubeApi() {
+    if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+    apiPromise ??= new Promise((resolve, reject) => {
+      const previous = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (previous) previous();
+        resolve(window.YT);
+      };
+      const script = document.createElement('script');
+      script.src = 'https://www.youtube.com/iframe_api';
+      script.onerror = () => {
+        apiPromise = undefined;
+        reject(new Error('The YouTube player could not be loaded'));
+      };
+      document.head.append(script);
+    });
+    return apiPromise;
+  }
+
+  // Starts silent and rises to a soft level so the music never begins abruptly
+  function fadeIn(target) {
+    clearInterval(fadeTimer);
+    const started = performance.now();
+    target.setVolume(0);
+    fadeTimer = setInterval(() => {
+      const progress = Math.min((performance.now() - started) / FADE_IN_MS, 1);
+      target.setVolume(Math.round(SAMPLE_VOLUME * progress * progress));
+      if (progress === 1) clearInterval(fadeTimer);
+    }, 100);
+  }
+
+  function stopPlayer() {
+    mountToken += 1; // cancels any player that is still loading
+    clearInterval(fadeTimer);
+    if (ytPlayer) {
+      try {
+        ytPlayer.destroy();
+      } catch (error) {
+        console.warn(error);
+      }
+      ytPlayer = null;
+    }
     player.replaceChildren();
+  }
+
+  // Plain embed with looping, used only if the API cannot load
+  function mountPlainFrame(card, id) {
+    const frame = document.createElement('iframe');
+    frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&rel=0&playsinline=1`;
+    frame.title = `${card.dataset.title} sample`;
+    frame.allow = 'autoplay; encrypted-media; picture-in-picture';
+    frame.allowFullscreen = true;
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    player.replaceChildren(frame);
+  }
+
+  async function mountPlayer(card) {
+    stopPlayer();
+    const token = mountToken;
     const id = videoId(CONFIG.samples[card.dataset.key]);
 
     if (!id) {
@@ -310,20 +379,37 @@ function initCategories() {
       return;
     }
 
-    const frame = document.createElement('iframe');
-    frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1`;
-    frame.title = `${card.dataset.title} sample`;
-    frame.allow = 'autoplay; encrypted-media; picture-in-picture';
-    frame.allowFullscreen = true;
-    frame.referrerPolicy = 'strict-origin-when-cross-origin';
-    player.append(frame);
+    const target = document.createElement('div');
+    player.append(target);
+
+    try {
+      const YT = await loadYouTubeApi();
+      if (token !== mountToken) return; // the visitor already picked something else
+      ytPlayer = new YT.Player(target, {
+        host: 'https://www.youtube-nocookie.com',
+        videoId: id,
+        playerVars: { loop: 1, playlist: id, rel: 0, playsinline: 1 },
+        events: {
+          onReady: (event) => {
+            fadeIn(event.target);
+            event.target.playVideo();
+          },
+          onStateChange: (event) => {
+            if (event.data === YT.PlayerState.ENDED) event.target.playVideo(); // keeps it looping
+          },
+        },
+      });
+    } catch (error) {
+      console.warn(error);
+      if (token === mountToken) mountPlainFrame(card, id);
+    }
   }
 
   function setLabels(card) {
     cards.forEach((item) => {
       const active = item === card;
       item.setAttribute('aria-pressed', String(active));
-      item.querySelector('.category-cta-text').textContent = active ? 'Playing sample. Tap to stop' : 'Hear a sample';
+      item.querySelector('.category-cta-text').textContent = active ? 'Playing. Click to stop' : 'Click';
     });
   }
 
@@ -335,13 +421,15 @@ function initCategories() {
     stageText.textContent = card.dataset.detail;
     setLabels(card);
     mountPlayer(card);
+    document.dispatchEvent(new Event('sample:start'));
     stage.hidden = false;
     stage.scrollIntoView({ behavior: prefersReducedMotion.matches ? 'auto' : 'smooth', block: 'nearest' });
   }
 
   function close() {
     activeCard = null;
-    player.replaceChildren(); // removing the iframe stops the audio
+    stopPlayer(); // removing the player stops the audio
+    document.dispatchEvent(new Event('sample:stop'));
     stage.hidden = true;
     setLabels(null);
   }
@@ -384,6 +472,12 @@ function initForm() {
     'f-level': () => (value('f-level') ? '' : 'Please select a proficiency level.'),
     'f-address': () => (value('f-address') ? '' : 'Please enter your address.'),
     'f-category': () => (checked('category').length ? '' : 'Please choose at least one category.'),
+    'f-instrument': () =>
+      checked('category').includes('Instrumental') && !checked('instrument').length
+        ? 'Please choose at least one instrument.'
+        : '',
+    'f-other': () =>
+      checked('instrument').includes('Other') && !value('f-other') ? 'Please tell us which instrument.' : '',
     'f-taking': () => (checked('takingClasses').length ? '' : 'Please select Yes or No.'),
     'f-started': () =>
       checked('takingClasses')[0] === 'Yes' && !value('f-started') ? 'Please tell us when you started.' : '',
@@ -401,7 +495,8 @@ function initForm() {
   }
 
   function check(id) {
-    if (!document.getElementById(id).offsetParent && id === 'f-started') {
+    // Fields that are not on screen right now (for example the instrument options) are skipped
+    if (document.getElementById(id).closest('.field').hidden) {
       showError(id, '');
       return '';
     }
@@ -424,6 +519,27 @@ function initForm() {
       }),
     );
   });
+
+  // Instrumental opens the instrument list; "Other" opens a text box
+  const instrumentField = document.getElementById('f-instrument');
+  const otherField = document.getElementById('otherField');
+
+  function syncInstrumentFields() {
+    const instrumental = checked('category').includes('Instrumental');
+    instrumentField.hidden = !instrumental;
+    if (!instrumental) instrumentField.querySelectorAll('input').forEach((input) => (input.checked = false));
+
+    const other = instrumental && checked('instrument').includes('Other');
+    otherField.hidden = !other;
+    if (!other) document.getElementById('f-other').value = '';
+
+    showError('f-instrument', '');
+    showError('f-other', '');
+  }
+
+  form
+    .querySelectorAll('[name="category"], [name="instrument"]')
+    .forEach((input) => input.addEventListener('change', syncInstrumentFields));
 
   // "If yes, when did you start?" only appears when it applies
   form.querySelectorAll('[name="takingClasses"]').forEach((radio) =>
@@ -496,6 +612,8 @@ function initForm() {
       phone: value('f-phone'),
       address: value('f-address'),
       categories: checked('category'),
+      instruments: checked('instrument'),
+      otherInstrument: value('f-other'),
       currentlyTakingClasses: checked('takingClasses')[0],
       startedOn: value('f-started'),
       proficiency: value('f-level'),
@@ -521,10 +639,131 @@ function initForm() {
     form.reset();
     Object.keys(rules).forEach((id) => showError(id, ''));
     startedField.hidden = true;
+    syncInstrumentFields();
     success.hidden = true;
     form.hidden = false;
     document.getElementById('f-student').focus();
   });
+}
+
+/* ---------- Background music: starts softly on the first tap or click, loops, and can be muted ---------- */
+function initMusic() {
+  const audio = document.getElementById('bgMusic');
+  const toggle = document.getElementById('musicToggle');
+  const iconOn = toggle.querySelector('.ic-sound-on');
+  const iconOff = toggle.querySelector('.ic-sound-off');
+
+  let wanted = true; // false once the visitor has switched the music off
+  let suspended = false; // true while a category sample is playing
+  let started = false; // true once the music has begun at least once
+  let context = null;
+  let gain = null;
+  let pauseTimer = 0;
+
+  try {
+    wanted = localStorage.getItem('kv-music') !== 'off';
+  } catch (error) {
+    /* storage can be unavailable (private mode); the default is fine */
+  }
+
+  // A gain node is used because phones ignore audio.volume, which would skip the soft start
+  function buildGraph() {
+    if (context) return;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    context = new AudioContextClass();
+    gain = context.createGain();
+    gain.gain.value = 0;
+    context.createMediaElementSource(audio).connect(gain).connect(context.destination);
+  }
+
+  function ramp(level, seconds) {
+    if (!gain) {
+      audio.volume = level;
+      return;
+    }
+    const now = context.currentTime;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(level, now + seconds);
+  }
+
+  async function start() {
+    clearTimeout(pauseTimer);
+    buildGraph();
+    if (context && context.state === 'suspended') await context.resume();
+    if (gain) gain.gain.value = 0;
+    else audio.volume = 0;
+    try {
+      await audio.play();
+      started = true;
+      ramp(CONFIG.musicVolume, CONFIG.musicFadeInMs / 1000);
+    } catch (error) {
+      console.warn('Background music could not start yet:', error);
+    }
+  }
+
+  function stop() {
+    ramp(0, 0.6);
+    clearTimeout(pauseTimer);
+    pauseTimer = setTimeout(() => audio.pause(), 650);
+  }
+
+  function render() {
+    const playing = !audio.paused;
+    toggle.setAttribute('aria-pressed', String(playing));
+    toggle.setAttribute('aria-label', playing ? 'Turn background music off' : 'Play background music');
+    iconOn.toggleAttribute('hidden', !playing);
+    iconOff.toggleAttribute('hidden', playing);
+  }
+
+  function remember(value) {
+    try {
+      localStorage.setItem('kv-music', value ? 'on' : 'off');
+    } catch (error) {
+      /* ignore */
+    }
+  }
+
+  audio.addEventListener('play', render);
+  audio.addEventListener('pause', render);
+
+  toggle.addEventListener('click', () => {
+    wanted = audio.paused;
+    remember(wanted);
+    if (wanted && !suspended) start();
+    else if (!wanted) stop();
+    render();
+  });
+
+  // Browsers only allow sound after a tap, click or key press, so the first one starts the music
+  const firstGestures = ['pointerdown', 'keydown'];
+  function onFirstGesture(event) {
+    if (toggle.contains(event.target)) return; // the button handles itself
+    firstGestures.forEach((name) => document.removeEventListener(name, onFirstGesture, true));
+    if (wanted && !suspended) start();
+  }
+  firstGestures.forEach((name) => document.addEventListener(name, onFirstGesture, true));
+
+  // Step aside while a category sample plays, then come back softly
+  document.addEventListener('sample:start', () => {
+    suspended = true;
+    if (!audio.paused) stop();
+  });
+  document.addEventListener('sample:stop', () => {
+    suspended = false;
+    if (wanted) start();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (!audio.paused) audio.pause();
+    } else if (wanted && started && !suspended) {
+      start();
+    }
+  });
+
+  render();
 }
 
 /* ---------- Footer social links ---------- */
@@ -544,3 +783,4 @@ initNotes();
 initCategories();
 initForm();
 initSocial();
+initMusic();

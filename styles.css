@@ -27,7 +27,7 @@
   --font-head: 'DM Serif Display', Georgia, serif;
   --font-body: 'Hanken Grotesk', system-ui, sans-serif;
   --radius: 2px;
-  --header-offset: 132px;
+  --header-offset: 152px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
@@ -126,7 +126,7 @@ main {
   z-index: 1;
 }
 
-/* ---------- Logo: always a circle, the whole lockup scaled to sit inside it ---------- */
+/* ---------- Logo: always a circle. LogoKV-HD.svg has the same gap around the artwork built in ---------- */
 .logo {
   display: grid;
   flex: none;
@@ -139,7 +139,9 @@ main {
 }
 
 .logo img {
-  width: 76%;
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .logo--header {
@@ -149,6 +151,24 @@ main {
 
 .logo--hero {
   --d: min(clamp(240px, 42vh, 400px), 76vw);
+}
+
+.brand {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+}
+
+.brand-tag {
+  color: var(--accent);
+  font-family: var(--font-head);
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .logo--footer {
@@ -283,7 +303,9 @@ main {
   background: var(--surface);
   color: var(--ink);
   cursor: pointer;
-  transition: transform 0.2s var(--ease), background-color 0.2s;
+  transition:
+    transform 0.2s var(--ease),
+    background-color 0.2s;
 }
 
 .nav-toggle:hover {
@@ -321,22 +343,29 @@ main {
   text-align: center;
 }
 
-.tagline {
-  max-width: 90ch;
-  margin-top: 44px;
+.tagline-title {
+  margin-top: 16px;
   color: var(--accent);
   font-family: var(--font-head);
-  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  font-size: clamp(1.6rem, 3.4vw, 2.3rem);
   font-style: italic;
-  line-height: 1.35;
+  line-height: 1.2;
+}
+
+.tagline {
+  width: 100%;
+  max-width: 90ch;
+  margin-top: 8px;
+  color: var(--ink);
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  overflow-wrap: break-word;
+  text-align: center;
   text-wrap: balance;
 }
 
-.tagline strong {
-  font-weight: 400;
-}
-
-.tagline::before {
+.tagline-title::before {
   content: '';
   display: block;
   width: 56px;
@@ -346,7 +375,7 @@ main {
 }
 
 .motto {
-  margin-top: 22px;
+  margin-top: 28px;
   font-family: var(--font-head);
   font-size: clamp(2.4rem, 7vw, 5.2rem);
   font-weight: 400;
@@ -461,14 +490,6 @@ h2 {
   border-top: 1px solid var(--ink);
 }
 
-.objective-no {
-  display: block;
-  color: var(--accent);
-  font-family: var(--font-head);
-  font-size: 4rem;
-  line-height: 1;
-}
-
 .objectives p {
   margin-top: 12px;
   font-size: 1.1rem;
@@ -531,6 +552,7 @@ h2 {
   display: flex;
   flex: 1;
   flex-direction: column;
+  min-width: 0;
   gap: 6px;
   padding: 18px 20px 22px;
 }
@@ -539,9 +561,11 @@ h2 {
   font-family: var(--font-head);
   font-size: 2rem;
   line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .category-styles {
+  overflow-wrap: anywhere;
   color: var(--muted);
 }
 
@@ -756,6 +780,11 @@ fieldset {
   border: 0;
 }
 
+.subchoice {
+  padding-left: 16px;
+  border-left: 3px solid var(--gold);
+}
+
 .choice-row {
   display: flex;
   flex-wrap: wrap;
@@ -890,7 +919,7 @@ fieldset {
 
 .contact-list li {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   column-gap: 10px;
   padding-top: 14px;
   border-top: 2px solid var(--ink);
@@ -1136,7 +1165,10 @@ fieldset {
     overflow: hidden;
     opacity: 0;
     pointer-events: none;
-    transition: max-height 0.35s var(--ease), opacity 0.25s var(--ease), padding 0.35s var(--ease);
+    transition:
+      max-height 0.35s var(--ease),
+      opacity 0.25s var(--ease),
+      padding 0.35s var(--ease);
   }
 
   .nav.is-open {
@@ -1166,7 +1198,7 @@ fieldset {
 
 @media (max-width: 720px) {
   :root {
-    --header-offset: 104px;
+    --header-offset: 124px;
   }
 
   .site-header {
@@ -1180,11 +1212,20 @@ fieldset {
   .objectives,
   .category-grid,
   .contact-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .category {
     flex-direction: row;
+  }
+
+  .category-title {
+    font-size: 1.6rem;
+  }
+
+  .category-body {
+    justify-content: center;
+    padding: 14px 16px;
   }
 
   .category-media {
@@ -1221,4 +1262,42 @@ fieldset {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* ---------- Background music button ---------- */
+.music-toggle {
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  left: calc(16px + env(safe-area-inset-left));
+  z-index: 55;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(43, 26, 22, 0.2);
+  transition:
+    transform 0.25s var(--ease),
+    background-color 0.25s,
+    color 0.25s;
+}
+
+.music-toggle:hover {
+  transform: translateY(-2px);
+}
+
+.music-toggle .ic {
+  width: 22px;
+  height: 22px;
+}
+
+.music-toggle[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
 }
