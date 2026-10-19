@@ -266,7 +266,7 @@ main {
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .nav-toggle {
@@ -276,16 +276,17 @@ main {
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 2px solid var(--accent);
+  border: 2px solid var(--ink);
   border-radius: var(--radius);
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--surface);
+  color: var(--ink);
   cursor: pointer;
-  transition: transform 0.2s var(--ease);
+  transition: transform 0.2s var(--ease), background-color 0.2s;
 }
 
 .nav-toggle:hover {
-  transform: translateY(-1px);
+  background: var(--ink);
+  color: var(--bg);
 }
 
 .nav-toggle .ic {
