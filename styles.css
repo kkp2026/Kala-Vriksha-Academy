@@ -263,6 +263,36 @@ main {
   gap: clamp(16px, 3vw, 32px);
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  transition: transform 0.2s var(--ease);
+}
+
+.nav-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.nav-toggle .ic {
+  width: 22px;
+  height: 22px;
+}
+
 .nav-link {
   padding-bottom: 2px;
   background: linear-gradient(currentColor, currentColor) 0 100% / 0 2px no-repeat;
@@ -1082,6 +1112,57 @@ fieldset {
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .nav-link {
+    display: none;
+  }
+
+  .nav.is-open .nav-link {
+    display: block;
+  }
+
+  .nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--bg);
+    border-bottom: 2px solid var(--ink);
+    box-shadow: 0 12px 24px rgba(43, 26, 22, 0.12);
+    padding: 16px clamp(20px, 5vw, 48px) 24px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.35s var(--ease), opacity 0.25s var(--ease), padding 0.35s;
+  }
+
+  .nav.is-open {
+    max-height: 320px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav-link {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 1.15rem;
+  }
+
+  .nav-actions {
+    margin-top: 12px;
+  }
+
+  .nav-actions .btn {
+    flex: 1;
+  }
+
   .split {
     grid-template-columns: 1fr;
   }
@@ -1102,10 +1183,6 @@ fieldset {
 
   .site-header.is-scrolled {
     --logo-size: 60px;
-  }
-
-  .nav-link {
-    display: none;
   }
 
   .objectives,

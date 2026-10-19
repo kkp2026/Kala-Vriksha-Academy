@@ -50,6 +50,12 @@
         <symbol id="i-check" viewBox="0 0 24 24">
           <path d="M5 12.5l4.5 4.5L19 7.5" />
         </symbol>
+        <symbol id="i-menu" viewBox="0 0 24 24">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
+        <symbol id="i-close" viewBox="0 0 24 24">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
         <symbol id="i-instagram" viewBox="0 0 24 24">
           <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
           <circle cx="12" cy="12" r="4" />
@@ -82,11 +88,17 @@
         <a class="logo logo--header" href="#top" aria-label="Kala Vriksha Academy, home">
           <img src="LogoKV-HD.svg" width="360" height="360" alt="Kala Vriksha Academy" />
         </a>
-        <nav class="nav" aria-label="Primary">
+        <nav class="nav" aria-label="Primary" id="primaryNav">
           <a class="nav-link" href="#about">About</a>
           <a class="nav-link" href="#categories">Categories</a>
           <a class="nav-link" href="#connect">Contact</a>
-          <a class="btn btn--primary btn--sm" href="#connect">Enquire Now</a>
+          <div class="nav-actions">
+            <a class="btn btn--primary btn--sm" href="#connect">Enquire Now</a>
+            <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-label="Toggle menu">
+              <svg class="ic ic-menu"><use href="#i-menu" /></svg>
+              <svg class="ic ic-close" hidden><use href="#i-close" /></svg>
+            </button>
+          </div>
         </nav>
       </div>
     </header>
@@ -171,7 +183,6 @@
         <div class="wrap">
           <header class="section-head section-head--wide reveal">
             <h2 id="categoriesTitle">Categories</h2>
-            
           </header>
 
           <div class="category-grid reveal">
@@ -221,7 +232,7 @@
                   width="720"
                   height="900"
                   loading="lazy"
-                  alt="Illustration of a veena, a mridangam and a violin among tree branches"
+                  alt="Illustration of a veena, a mridangam and a violin"
                 />
               </span>
               <span class="category-body">

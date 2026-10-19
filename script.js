@@ -9,11 +9,11 @@ const CONFIG = {
   // Contact form: leave empty while there is no backend. When it is set, the form POSTs JSON to this URL.
   endpoint: '',
 
-  // Placeholder audio for each category. Paste a YouTube link or an 11-character video ID.
+  // YouTube sample links for each category.
   samples: {
-    vocal: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
-    instrumental: 'https://www.youtube.com/watch?v=5qap5aO4i9A',
-    dance: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+    vocal: 'https://youtu.be/TZXMAw3TEsY?si=SZFAIKYlXJvN2xFd',
+    instrumental: 'https://youtu.be/jM9b2Qo5qwM?si=6tpQE0UGWgr0Q6VK',
+    dance: 'https://youtu.be/YbRX_cdTap8?si=-l4YhwptocfNXXai',
   },
 
   // Placeholder social links. An empty value hides that icon.
@@ -30,6 +30,8 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 /* ---------- Fixed header: shrinks slightly once the page is scrolled ---------- */
 function initHeader() {
   const header = document.getElementById('siteHeader');
+  const navToggle = document.getElementById('navToggle');
+  const primaryNav = document.getElementById('primaryNav');
   let ticking = false;
 
   const update = () => {
@@ -48,6 +50,25 @@ function initHeader() {
     { passive: true },
   );
   update();
+
+  // Mobile navigation drawer toggle
+  if (navToggle && primaryNav) {
+    navToggle.addEventListener('click', () => {
+      const isOpen = primaryNav.classList.toggle('is-open');
+      navToggle.setAttribute('aria-expanded', String(isOpen));
+      navToggle.querySelector('.ic-menu').hidden = isOpen;
+      navToggle.querySelector('.ic-close').hidden = !isOpen;
+    });
+
+    primaryNav.querySelectorAll('.nav-link, .btn').forEach((link) => {
+      link.addEventListener('click', () => {
+        primaryNav.classList.remove('is-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.querySelector('.ic-menu').hidden = false;
+        navToggle.querySelector('.ic-close').hidden = true;
+      });
+    });
+  }
 }
 
 /* ---------- Scroll reveal ---------- */
