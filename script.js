@@ -32,25 +32,31 @@ function initHeader() {
   const header = document.getElementById('siteHeader');
   const navToggle = document.getElementById('navToggle');
   const primaryNav = document.getElementById('primaryNav');
-  let ticking = false;
 
-  const update = () => {
+  window.addEventListener('scroll', () => {
     header.classList.toggle('is-scrolled', window.scrollY > 24);
-    ticking = false;
-  };
+  }, { passive: true });
 
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(update);
-      }
-    },
-    { passive: true },
-  );
-  update();
+  if (navToggle && primaryNav) {
+    navToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = primaryNav.classList.toggle('is-open');
+      navToggle.setAttribute('aria-expanded', String(isOpen));
+      navToggle.querySelector('.ic-menu').hidden = isOpen;
+      navToggle.querySelector('.ic-close').hidden = !isOpen;
+    });
 
+    // Close menu when clicking links
+    primaryNav.querySelectorAll('.nav-link').forEach((link) => {
+      link.addEventListener('click', () => {
+        primaryNav.classList.remove('is-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.querySelector('.ic-menu').hidden = false;
+        navToggle.querySelector('.ic-close').hidden = true;
+      });
+    });
+  }
+}
   // Mobile navigation drawer toggle
   if (navToggle && primaryNav) {
     navToggle.addEventListener('click', () => {
